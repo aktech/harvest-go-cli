@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -10,6 +11,8 @@ import (
 	"harvest-cli/internal/models"
 	"harvest-cli/internal/prompt"
 )
+
+var logDate string
 
 // Note: getProjectsForCompletion is defined in start.go
 
@@ -19,11 +22,16 @@ var logCmd = &cobra.Command{
 	Long: `Log a new time entry by selecting project, task, hours, and notes.
 
 Arguments are optional and support fuzzy matching:
-  harvest log                                   # Interactive selection
-  harvest log "myproject" "dev" 2.5             # Fuzzy match project/task
-  harvest log "myproject" "dev" 2.5 "Standup"   # With notes`,
+  harvest log                                          # Interactive selection
+  harvest log "myproject" "dev" 2.5                    # Fuzzy match project/task
+  harvest log "myproject" "dev" 2.5 "Standup"          # With notes
+  harvest log -d 2026-04-08 "myproject" "dev" 8 "note" # Log for a past date`,
 	RunE:              runLog,
 	ValidArgsFunction: completeLogArgs,
+}
+
+func init() {
+	logCmd.Flags().StringVarP(&logDate, "date", "d", "", "Date (YYYY-MM-DD), defaults to interactive prompt")
 }
 
 func completeLogArgs(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
@@ -179,10 +187,19 @@ func runLog(cmd *cobra.Command, args []string) error {
 		notes = n
 	}
 
-	// Input date (always interactive for now)
-	date, err := prompt.InputDate()
-	if err != nil {
-		return fmt.Errorf("date input cancelled: %w", err)
+	// Input date: flag takes precedence, else interactive
+	var date string
+	if logDate != "" {
+		if _, err := time.Parse("2006-01-02", logDate); err != nil {
+			return fmt.Errorf("invalid --date format, use YYYY-MM-DD: %s", logDate)
+		}
+		date = logDate
+	} else {
+		d, err := prompt.InputDate()
+		if err != nil {
+			return fmt.Errorf("date input cancelled: %w", err)
+		}
+		date = d
 	}
 
 	// Create time entry

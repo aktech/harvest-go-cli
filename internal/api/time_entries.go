@@ -48,6 +48,27 @@ func (c *Client) CreateTimeEntry(req *models.CreateTimeEntryRequest) (*models.Ti
 	return &entry, nil
 }
 
+func (c *Client) UpdateTimeEntry(entryID int, req *models.UpdateTimeEntryRequest) (*models.TimeEntry, error) {
+	path := fmt.Sprintf("/time_entries/%d", entryID)
+	body, err := c.doRequest("PATCH", path, req)
+	if err != nil {
+		return nil, err
+	}
+
+	var entry models.TimeEntry
+	if err := json.Unmarshal(body, &entry); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
+	}
+
+	return &entry, nil
+}
+
+func (c *Client) DeleteTimeEntry(entryID int) error {
+	path := fmt.Sprintf("/time_entries/%d", entryID)
+	_, err := c.doRequest("DELETE", path, nil)
+	return err
+}
+
 func (c *Client) StopTimer(entryID int) (*models.TimeEntry, error) {
 	path := fmt.Sprintf("/time_entries/%d/stop", entryID)
 	body, err := c.doRequest("PATCH", path, nil)

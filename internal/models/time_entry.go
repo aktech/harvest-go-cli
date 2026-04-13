@@ -30,3 +30,11 @@ type CreateTimeEntryRequest struct {
 	Hours     float64 `json:"hours,omitempty"`
 	Notes     string  `json:"notes,omitempty"`
 }
+
+type UpdateTimeEntryRequest struct {
+	ProjectID *int     `json:"project_id,omitempty"`
+	TaskID    *int     `json:"task_id,omitempty"`
+	SpentDate *string  `json:"spent_date,omitempty"`
+	Hours     *float64 `json:"hours,omitempty"`
+	Notes     *string  `json:"notes,omitempty"`
+}

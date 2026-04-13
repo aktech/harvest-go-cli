@@ -36,9 +36,21 @@ harvest stop
 harvest log
 harvest log "project" "task" 2.5 "notes"
 
-# View entries
+# Log for a past (or future) date, non-interactive
+harvest log -d YYYY-MM-DD "project" "task" 2.5 "notes"
+
+# Update an existing entry (find ID via `harvest view`)
+harvest update --id <id> --hours 1.5
+harvest update --id <id> --notes "new notes"
+harvest update --id <id> -d YYYY-MM-DD
+
+# Delete an entry
+harvest delete <id>
+
+# View entries (IDs shown in [brackets] for use with update/delete)
 harvest view today
 harvest view week
+harvest view --from YYYY-MM-DD --to YYYY-MM-DD
 
 # List projects/tasks
 harvest ls projects
